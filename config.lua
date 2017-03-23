@@ -11,3 +11,9 @@ beacon.config.msg_prefix = "[Beacon] "
 
 -- Bool. : Does the beam break nodes (other that air)
 beacon.config.beam_break_nodes = false
+
+-- Bool. : Should the blue beacon area be delimited with a visible field.
+beacon.config.blue_field = true
+
+-- Bool. : If true, players wont be able to get in or out of the blue field
+beacon.config.blue_field_solid = true

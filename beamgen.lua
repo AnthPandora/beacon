@@ -64,33 +64,4 @@ beacon.on_destruct = function(pos) --remove the beam above a source when source 
 		end
  end
 
---[[
-for _,color in ipairs(colors) do
-	
-	minetest.register_abm({
-		nodenames = {"beacon:"..color},
-		interval = 5,
-		chance = 1,
-		action = function(pos)
-			pos.y = pos.y + 1
-			minetest.add_node(pos, {name="beacon:"..color.."base"})
-			for i=1,179 do
-				local p = {x=pos.x, y=pos.y+i, z=pos.z}
-				-- Get far node (from http://dev.minetest.net/minetest.get_node)
-				local node = minetest.get_node(p)
-				if node.name == "ignore" then
-					minetest.get_voxel_manip():read_from_map(p, p)
-					node = minetest.get_node(p)
-				end
-				-- Stop when hitting something else than air and config option is so
-				if not beam_break_nodes and node.name ~= "air" then break
-				-- Place node
-				else	minetest.add_node(p, {name="beacon:"..color.."beam"})
-				end
-			end
-		end,
-	})
-end
---]]
-
 

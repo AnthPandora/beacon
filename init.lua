@@ -8,6 +8,7 @@ beacon.colors = {'blue','red','green','purple'}
 
 --load other scripts
 dofile(minetest.get_modpath("beacon").."/config.lua")
+dofile(minetest.get_modpath("beacon").."/force_field.lua")
 dofile(minetest.get_modpath("beacon").."/effects.lua")
 dofile(minetest.get_modpath("beacon").."/beaminit.lua")
 dofile(minetest.get_modpath("beacon").."/beamgen.lua")
@@ -30,7 +31,7 @@ minetest.register_node("beacon:blue", {
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:blue",
 	on_construct = beacon.on_construct.blue,
-	on_destruct = beacon.on_destruct,
+	on_destruct = beacon.effects.blue.on_destruct,
 	after_place_node = beacon.effects.blue.after_place_node,
 })
 

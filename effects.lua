@@ -3,6 +3,22 @@
 local timer_timeout = beacon.config.timer_timeout
 local effects_radius = beacon.config.effects_radius
 local msg_prefix = beacon.config.msg_prefix
+local blue_field = beacon.config.blue_field
+--
+-- Blue Field node
+--
+local blue_field_walkable = beacon.config.blue_field_solid or false
+
+minetest.register_node("beacon:bluefield", {
+	drawtype = "glasslike",
+	tiles = {"bluefield.png"},
+	paramtype = "light",
+	sunlight_propagates = true,
+	walkable = blue_field_walkable,
+	diggable = false,
+	light_source = 5,
+	groups = {not_in_creative_inventory=1}
+})
 
 
 --
@@ -21,6 +37,57 @@ function get_players_inside_radius(pos, radius)
 		end
 	end
 	return players
+end
+
+-- Place field nodes around a given area
+function draw_force_field(r, field_node)
+	for xi = r.x.min,r.x.max do
+		for yi = r.y.min,r.y.max do
+			for zi = r.z.min,r.z.max do
+				--	
+				-- Draws the force field	
+				--
+				if xi == r.x.min or xi == r.x.max
+				 or zi == r.z.min or zi == r.z.max
+				 or yi == r.y.min or yi == r.y.max
+				 then
+					local p = {x=xi,y=yi,z=zi}
+					local node = minetest.get_node(p)
+					if node.name == "ignore" then
+						minetest.get_voxel_manip():read_from_map(p, p)
+						node = minetest.get_node(p)
+					end
+
+					if node.name == "air" then
+						minetest.place_node(p, {name=field_node})
+					end	
+				end	
+			end
+		end
+	end --]]
+end
+
+-- Remove field nodes around a given area
+function remove_force_field(r, field_node)
+	for xi = r.x.min,r.x.max do
+		for yi = r.y.min,r.y.max do
+			for zi = r.z.min,r.z.max do
+				--	
+				-- Limits the force field	
+				--
+				if xi == r.x.min or xi == r.x.max
+				 or zi == r.z.min or zi == r.z.max
+				 or yi == r.y.min or yi == r.y.max
+				 then
+					local p = {x=xi,y=yi,z=zi}
+					local node = minetest.get_node(p)
+					if node.name == field_node then
+						minetest.set_node(p, {name='air'})
+					end	
+				end	
+			end
+		end
+	end --]]
 end
 
 --
@@ -59,7 +126,6 @@ beacon.effects.blue.after_place_node = function(pos, placer, itemstack, pointed_
 	local name = placer:get_player_name()
 	meta:set_string('placer', name)
 	
-	
 	-- Limits of radius
 	local xr = {}
 	xr.min = pos.x - effects_radius
@@ -71,13 +137,24 @@ beacon.effects.blue.after_place_node = function(pos, placer, itemstack, pointed_
 	zr.min = pos.z - effects_radius
 	zr.max = pos.z + effects_radius
 	
+	
+	--
+	-- Draw a blue field around 
+	--
+	local radius_table = {x=xr,y=yr,z=zr}
+	if blue_field then 
+		draw_force_field(radius_table, "beacon:bluefield")
+	end
+	
+	--
 	-- Protect the area 
+	--
 	if minetest.get_modpath('areas') then
 		local area_name = "Blue beacon at "..pos.x.." "..pos.y.." "..pos.z
 		local p1 = { x = xr.max, y = yr.max, z = zr.max	}
 		local p2 = { x = xr.min, y = yr.min, z = zr.min	}
 
-		local canAdd, errMsg = areas:canPlayerAddArea(pos1, pos2, name)
+		local canAdd, errMsg = areas:canPlayerAddArea(p1, p2, name)
 		if not canAdd then
 			minetest.chat_send_player(name, msg_prefix.."You can't protect that area: "..errMsg)
 		else
@@ -90,32 +167,12 @@ beacon.effects.blue.after_place_node = function(pos, placer, itemstack, pointed_
 	end	
 
 	-- TODO : Add formspec for area config
-	
-	--[[ TODO : Draw a blue field around
-	for xi = xr.min,xr.max do
-		for yi = yr.min,yr.max do
-			for zi = zr.min,zr.max do
-				if xi == xr.min or xi == xr.max
-				 or zi == zr.min or zi == zr.max
-				 or yi == yr.min or yi == yr.max
-				 then
-					local p = {x=xi,y=yi,z=zi}
-					local node = minetest.get_node(p)
-					if node.name == "ignore" then
-						minetest.get_voxel_manip():read_from_map(p, p)
-						node = minetest.get_node(p)
-					end
-					if node.name == "air" then
-						minetest.place_node(p,  {name="default:glass"})
-					end	
-				end	
-			end
-		end
-	end --]]
-	
 end
 
 beacon.effects.blue.on_destruct = function(pos)
+	--
+	-- Unprotect the area
+	--
 	if minetest.get_modpath('areas') then
 		local meta = minetest.get_meta(pos)
 		-- local name = meta:get_string('placer')
@@ -124,51 +181,32 @@ beacon.effects.blue.on_destruct = function(pos)
 		areas:save()
 		minetest.chat_send_all(msg_prefix.."Removed area "..id)
 	end
-	-- Remove the beam
-	for i=1,180 do
-		minetest.remove_node({x=pos.x, y=pos.y+i, z=pos.z})
-	end
-end
 
-beacon.effects.blue.on_timer = function(pos, elapsed)
-	--[[
-	-- Players in the area
-	local players = get_players_inside_radius(pos, effects_radius)
-	
-	-- Grant privs to players in the area
-	for _,player in ipairs(players) do
-		local name = player:get_player_name()
-		local privs = minetest.get_player_privs(name)
-		local player_has_privs = minetest.check_player_privs(name, {interact = true})
-		if player_has_privs then 
-			privs.interact = nil
-			minetest.set_player_privs(name, privs)
-			minetest.chat_send_player(name, msg_prefix.."Proximity of a blue beacon prevents you from interacting with the world.")
-		end
+	--
+	-- Remove the blue field
+	--
+	if blue_field then 
+		-- Limits of radius
+		local xr = {}
+		xr.min = pos.x - effects_radius
+		xr.max = pos.x + effects_radius
+		local yr = {}
+		yr.min = pos.y - effects_radius
+		yr.max = pos.y + effects_radius
+		local zr = {}
+		zr.min = pos.z - effects_radius
+		zr.max = pos.z + effects_radius
 		
-		-- Restore privs after timeout if player disconnected or out of the area
-		local after_timeout = timer_timeout+1
-		minetest.after(after_timeout, function(player, pos, name, privs)
-			-- Get player pos
-			local p = player:getpos()
-			-- Safety in case player died or was disconnected.
-			if not p then  	
-				privs.interact = true
-				minetest.set_player_privs(name, privs)
-			else
-				-- Is player out of radius ?	
-				local out_x = (p.x < ( pos.x - effects_radius )) or (p.x > ( pos.x + effects_radius ))
-				local out_y = (p.y < ( pos.y - effects_radius )) or (p.y > ( pos.y + effects_radius ))
-				local out_z = (p.z < ( pos.z - effects_radius )) or (p.z > ( pos.z + effects_radius ))
-				if out_x or out_y or out_z then
-					privs.interact = true			-- restore priv
-					minetest.set_player_privs(name, privs)
-					minetest.chat_send_player(name, msg_prefix.."Far from the blue beacon, you regain the ability to interact.")
-				end	
-			end	
-		end, player, pos, name, privs)
+		local radius_table = {x=xr,y=yr,z=zr}
+
+		-- Remove field	
+		remove_force_field(radius_table, "beacon:bluefield")
 	end
-	--]]
+	
+	--
+	-- Rest of on_destruct function common with other beacons
+	--
+	beacon.on_destruct(pos)
 end
 
 --
