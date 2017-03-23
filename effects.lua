@@ -1,30 +1,15 @@
--- Easy configuration variables
-local timer_timeout = 2.0
-local effects_radius = 30
-local msg_prefix = "[Beacon] "
+-- This file contains fonctions used for beacons special effects
 
--- Functions below will be called by the beacon node
-beacon.effects = {}
+local timer_timeout = beacon.config.timer_timeout
+local effects_radius = beacon.config.effects_radius
+local msg_prefix = beacon.config.msg_prefix
 
--- on_destruct : Called when beacon node is removed
-beacon.effects.on_destruct = function(pos) --remove the beam above a source when source is removed
-		for i=1,180 do
-			minetest.remove_node({x=pos.x, y=pos.y+i, z=pos.z}) --thanks Morn76 for this bit of code!
-		end
- end
- 
--- on_construct : Called when beacon node is place		
-beacon.effects.on_construct = function(pos)
-	-- Start timer
-	local timer = minetest.get_node_timer(pos)
-	if not timer:is_started() then timer:start(timer_timeout)	end
-end
 
 --
--- Special effects
+-- Utility fonctions
 --
--- Fonctions called by the beacons nodes
--- on_timer : Called when timer reach timeout
+
+-- Return table of players inside the beacons radius
 function get_players_inside_radius(pos, radius)
 	-- Function from dev.minetest.net/minetest.get_objects_inside_radius
 	local all_objects = minetest.get_objects_inside_radius(pos, radius)
@@ -38,13 +23,9 @@ function get_players_inside_radius(pos, radius)
 	return players
 end
 
-function table_values_as_index(t) 
-	new_table = {}
-	for _,v in ipairs(t) do
-		new_table.t = true
-	end
-	return new_table
-end
+--
+-- Special effects
+--
 
 --
 -- Red Beacon : Regenerates health

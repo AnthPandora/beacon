@@ -2,8 +2,12 @@
 --Beacons v1.1 for minetest
 
 beacon = {}
+beacon.config = {}
+beacon.effects = {}
+beacon.colors = {'blue','red','green','purple'}
 
 --load other scripts
+dofile(minetest.get_modpath("beacon").."/config.lua")
 dofile(minetest.get_modpath("beacon").."/effects.lua")
 dofile(minetest.get_modpath("beacon").."/beaminit.lua")
 dofile(minetest.get_modpath("beacon").."/beamgen.lua")
@@ -25,11 +29,9 @@ minetest.register_node("beacon:blue", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:blue",
-	-- on_construct = beacon.effects.on_construct,
-	on_destruct = beacon.effects.blue.on_destruct,
+	on_construct = beacon.on_construct.blue,
+	on_destruct = beacon.on_destruct,
 	after_place_node = beacon.effects.blue.after_place_node,
-	-- on_timer = beacon.effects.blue.on_timer,
-
 })
 
 --code for "Main red source cube"
@@ -39,8 +41,8 @@ minetest.register_node("beacon:red", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:red",
-	on_construct = beacon.effects.on_construct,
-	on_destruct = beacon.effects.on_destruct,
+	on_construct = beacon.on_construct.red,
+	on_destruct = beacon.on_destruct,
 	on_timer = beacon.effects.red.on_timer,
 })
 
@@ -51,8 +53,8 @@ minetest.register_node("beacon:green", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:green",
-	on_construct = beacon.effects.on_construct,
-	on_destruct = beacon.effects.on_destruct,
+	on_construct = beacon.on_construct.green,
+	on_destruct = beacon.on_destruct,
 	after_place_node = beacon.effects.green.after_place_node,
 	on_timer = beacon.effects.green.on_timer,
 })
@@ -64,8 +66,8 @@ minetest.register_node("beacon:purple", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:purple",
-	on_construct = beacon.effects.on_construct,
-	on_destruct = beacon.effects.on_destruct,
+	on_construct = beacon.on_construct.purple,
+	on_destruct = beacon.on_destruct,
 
 })
 
