@@ -6,12 +6,12 @@ beacon.config = {}
 beacon.effects = {}
 beacon.colors = {'blue','red','green','purple'}
 
+
 --load other scripts
 dofile(minetest.get_modpath("beacon").."/config.lua")
-dofile(minetest.get_modpath("beacon").."/force_field.lua")
-dofile(minetest.get_modpath("beacon").."/effects.lua")
 dofile(minetest.get_modpath("beacon").."/beaminit.lua")
 dofile(minetest.get_modpath("beacon").."/beamgen.lua")
+dofile(minetest.get_modpath("beacon").."/effects.lua")
 dofile(minetest.get_modpath("beacon").."/crafts.lua")
 
 --code for "unactivated beacon"
@@ -30,6 +30,7 @@ minetest.register_node("beacon:blue", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:blue",
+	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.blue,
 	on_destruct = beacon.effects.blue.on_destruct,
 	after_place_node = beacon.effects.blue.after_place_node,
@@ -42,6 +43,7 @@ minetest.register_node("beacon:red", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:red",
+	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.red,
 	on_destruct = beacon.on_destruct,
 	on_timer = beacon.effects.red.on_timer,
@@ -54,6 +56,7 @@ minetest.register_node("beacon:green", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:green",
+	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.green,
 	on_destruct = beacon.on_destruct,
 	after_place_node = beacon.effects.green.after_place_node,
@@ -67,6 +70,7 @@ minetest.register_node("beacon:purple", {
 	light_source = 13,
 	groups = {cracky=3,oddly_breakable_by_hand=3},
 	drop = "beacon:purple",
+	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.purple,
 	on_destruct = beacon.on_destruct,
 

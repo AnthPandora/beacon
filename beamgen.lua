@@ -2,16 +2,36 @@
 
 local colors = beacon.colors
 local beam_break_nodes = beacon.config.beam_break_nodes
+local msg_prefix = beacon.config.msg_prefix
+local effects_radius = beacon.config.effects_radius
 local timer_timeout = beacon.config.timer_timeout
+local beacon_distance_check = beacon.config.beacon_distance_check
 
--- Functions below will be called by the beacon node
+-- Check for other nearby beacons
+beacon.is_near = function(pos)
+	local beacon_nodes = {"beacon:blue","beacon:purple","beacon:red","beacon:green"}
+	local other_beacon = minetest.find_node_near(pos, effects_radius, beacon_nodes)
+	if other_beacon ~= nil then
+		-- minetest.set_node(pos, {name='air'})
+		return true
+	end
+	return false
+end
 
--- on_construct : Called when beacon node is placed
+
+-- on_construct table for per node functions
 beacon.on_construct = {}
-
 -- Register per color on_construct function
 for _,color in ipairs(colors) do
 	beacon.on_construct[color] = function(pos)
+	
+		-- Return if placing inside the radius of another beacon
+		if beacon_distance_check and beacon.is_near(pos) then 
+			local meta = minetest.get_meta(pos)
+			meta:set_string('infotext', "Another beacon nearby prevented this beacon from being activated.")
+			return
+		end
+
 		--
 		-- Place base
 		--
@@ -36,6 +56,7 @@ for _,color in ipairs(colors) do
 			end
 		end
 		
+
 		--
 		-- Start timer if action on timer defined
 		--
@@ -53,15 +74,14 @@ end
 beacon.on_destruct = function(pos) --remove the beam above a source when source is removed
 		-- Remove base node
 		pos.y = pos.y + 1
-		minetest.remove_node(pos)
+		minetest.set_node(pos, {name='air'})
 		-- Remove beam nodes
 		for i=1,179 do
 			local p = {x=pos.x, y=pos.y+i, z=pos.z}
-			node_name = minetest.get_node(p).name
+			local node_name = minetest.get_node(p).name
 			if node_name:match('^beacon:.*beam') then
-				minetest.remove_node(p)
+				minetest.set_node(p, {name='air'})
 			end
 		end
  end
-
-
+ 

@@ -4,6 +4,8 @@ local timer_timeout = beacon.config.timer_timeout
 local effects_radius = beacon.config.effects_radius
 local msg_prefix = beacon.config.msg_prefix
 local blue_field = beacon.config.blue_field
+local beacon_distance_check = beacon.config.beacon_distance_check
+
 --
 -- Blue Field node
 --
@@ -81,7 +83,11 @@ function remove_force_field(r, field_node)
 				 then
 					local p = {x=xi,y=yi,z=zi}
 					local node = minetest.get_node(p)
-					if node.name == field_node then
+					if node.name == "ignore" then
+						minetest.get_voxel_manip():read_from_map(p, p)
+						node = minetest.get_node(p)
+					end
+					if node and node.name == field_node then
 						minetest.set_node(p, {name='air'})
 					end	
 				end	
@@ -122,6 +128,11 @@ end
 --
 beacon.effects.blue = {}
 beacon.effects.blue.after_place_node = function(pos, placer, itemstack, pointed_thing)
+
+	-- Return if placing inside the radius of another beacon
+	if beacon_distance_check and beacon.is_near(pos) then return end
+	
+	-- Set placer as meta
 	local meta = minetest.get_meta(pos)
 	local name = placer:get_player_name()
 	meta:set_string('placer', name)
@@ -164,8 +175,8 @@ beacon.effects.blue.after_place_node = function(pos, placer, itemstack, pointed_
 			minetest.chat_send_player(name, msg_prefix.."Your blue beacon is protecting the surrounding area.")
 			meta:set_int("area_id", id)
 		end	
-	end	
-
+	end
+	
 	-- TODO : Add formspec for area config
 end
 
@@ -177,11 +188,13 @@ beacon.effects.blue.on_destruct = function(pos)
 		local meta = minetest.get_meta(pos)
 		-- local name = meta:get_string('placer')
 		local id = meta:get_int("area_id")
-		areas:remove(id)
-		areas:save()
-		minetest.chat_send_all(msg_prefix.."Removed area "..id)
+		if id and id ~= 0 then
+			areas:remove(id)
+			areas:save()
+			minetest.chat_send_all(msg_prefix.."Removed area "..id)
+		end
 	end
-
+	
 	--
 	-- Remove the blue field
 	--

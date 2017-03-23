@@ -12,8 +12,11 @@ beacon.config.msg_prefix = "[Beacon] "
 -- Bool. : Does the beam break nodes (other that air)
 beacon.config.beam_break_nodes = false
 
+-- Bool. : Allow placing beacon inside the radius of another beacon.
+beacon.config.beacon_distance_check = true
+
 -- Bool. : Should the blue beacon area be delimited with a visible field.
-beacon.config.blue_field = true
+beacon.config.blue_field = false
 
 -- Bool. : If true, players wont be able to get in or out of the blue field
-beacon.config.blue_field_solid = true
+beacon.config.blue_field_solid = false
