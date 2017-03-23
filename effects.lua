@@ -111,6 +111,7 @@ beacon.effects.red.on_timer = function(pos, elapsed)
 		local hp_max = 20 -- FIXME : get hp_max from player properties
 		if hp < hp_max then player:set_hp(hp+(0.5*2)) end
 	end
+
 	-- Restart timer
 	local timer = minetest.get_node_timer(pos)
 	timer:start(timer_timeout)

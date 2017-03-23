@@ -25,13 +25,24 @@ beacon.on_construct = {}
 for _,color in ipairs(colors) do
 	beacon.on_construct[color] = function(pos)
 	
-		-- Return if placing inside the radius of another beacon
+			-- Return if placing inside the radius of another beacon
 		if beacon_distance_check and beacon.is_near(pos) then 
 			local meta = minetest.get_meta(pos)
 			meta:set_string('infotext', "Another beacon nearby prevented this beacon from being activated.")
 			return
 		end
 
+		
+		--
+		-- Start timer if action on timer defined
+		--
+		if color == 'green' or color == 'red' then
+			-- Start timer
+			local timer = minetest.get_node_timer(pos)
+			if not timer:is_started() then timer:start(timer_timeout)	end
+		end
+		
+		
 		--
 		-- Place base
 		--
@@ -55,17 +66,7 @@ for _,color in ipairs(colors) do
 			else	minetest.add_node(p, {name="beacon:"..color.."beam"})
 			end
 		end
-		
 
-		--
-		-- Start timer if action on timer defined
-		--
-		local effect = beacon.effects[color]
-		if effect.on_timer then
-			-- Start timer
-			local timer = minetest.get_node_timer(pos)
-			if not timer:is_started() then timer:start(timer_timeout)	end
-		end
 		
 	end	
 end
