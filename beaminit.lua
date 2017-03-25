@@ -1,8 +1,11 @@
 -- This file register beams nodes and particles
 local colors = beacon.colors
-
+local green_beam_climbable = beacon.config.green_beam_climbable
 -- Register per color beam and base nodes
 for _,color in ipairs(colors) do
+	
+	local beam_climbable = false
+	if green_beam_climbable and color == 'green' then  beam_climbable = true end
 
 	-- Base node
 	minetest.register_node("beacon:"..color.."base", {
@@ -12,6 +15,7 @@ for _,color in ipairs(colors) do
 		paramtype = "light",
 		walkable = false,
 		diggable = false,
+		climbable = beam_climbable,
 		light_source = 13,
 		groups = {not_in_creative_inventory=1}
 	})
@@ -24,6 +28,7 @@ for _,color in ipairs(colors) do
 		paramtype = "light",
 		walkable = false,
 		diggable = false,
+		climbable = beam_climbable,
 		light_source = 50,
 		groups = {not_in_creative_inventory=1}
 	})
