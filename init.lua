@@ -33,7 +33,7 @@ minetest.register_node("beacon:blue", {
 	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.blue,
 	on_destruct = beacon.effects.blue.on_destruct,
-	after_place_node = beacon.effects.blue.after_place_node,
+--	after_place_node = beacon.effects.blue.after_place_node,
 })
 
 --code for "Main red source cube"

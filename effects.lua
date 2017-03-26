@@ -227,6 +227,7 @@ end
 -- Green Beacon : Allow flying in the area
 --
 beacon.effects.green = {}
+--[[
 beacon.effects.green.on_timer = function(pos, elapsed)
 	-- Players in the area
 	local players = get_players_inside_radius(pos, effects_radius)
@@ -269,3 +270,46 @@ beacon.effects.green.on_timer = function(pos, elapsed)
 	local timer = minetest.get_node_timer(pos)
 	timer:start(timer_timeout)
 end
+--]]
+
+
+-- Use globalstep instead of node timer for green beacon
+-- beacause node can be in an unloaded area
+--
+local timer = 0
+minetest.register_globalstep(function(dtime)
+	-- Update timer
+	timer = timer + dtime
+	if (timer >= timer_timeout) then
+		-- List all connected player
+		local players = minetest.get_connected_players()
+		for _,player in ipairs(players) do
+
+			-- Get player infos
+			local pos = player:getpos()
+			local name = player:get_player_name()
+			local privs = minetest.get_player_privs(name)
+			local player_has_privs = minetest.check_player_privs(name, {fly = true})
+	
+			-- Find beacons in radius
+			green_beacon_near = minetest.find_node_near(pos, effects_radius, {"beacon:green"})
+			
+			-- Revoke privs if not found
+			if player_has_privs and not green_beacon_near then
+				privs.fly = nil			-- revoke priv
+				minetest.set_player_privs(name, privs)
+				minetest.chat_send_player(name, msg_prefix.."Far from the green beacon, you lost the ability to fly.")
+			end
+			
+			-- Grant privs if found
+			if green_beacon_near and not player_has_privs then 
+				privs.fly = true
+				minetest.set_player_privs(name, privs)
+				minetest.chat_send_player(name, msg_prefix.."Proximity of a green beacon grant you the ability you to fly.")
+			end
+		
+		end
+		-- Restart timer
+		timer = 0
+	end
+end)
