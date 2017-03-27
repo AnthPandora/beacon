@@ -292,7 +292,7 @@ minetest.register_globalstep(function(dtime)
 			local player_has_privs = minetest.check_player_privs(name, {fly = true})
 	
 			-- Find beacons in radius
-			green_beacon_near = minetest.find_node_near(pos, effects_radius, {"beacon:green"})
+			green_beacon_near = minetest.find_node_near(pos, effects_radius, {"beacon:greenbase"})
 			
 			-- Revoke privs if not found
 			if player_has_privs and not green_beacon_near then
