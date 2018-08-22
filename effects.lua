@@ -104,18 +104,19 @@ end
 -- Red Beacon : Regenerates health
 --
 beacon.effects.red = {}
-beacon.effects.red.on_timer = function(pos, elapsed)
-	local players = get_players_inside_radius(pos, effects_radius)
-	for _,player in ipairs(players) do
-		local hp = player:get_hp()
-		local hp_max = 20 -- FIXME : get hp_max from player properties
-		if hp < hp_max then player:set_hp(hp+(0.5*2)) end
-	end
+--beacon.effects.red.on_timer = function(pos, elapsed)
+--	local players = get_players_inside_radius(pos, effects_radius)
+--	for _,player in ipairs(players) do
+--		local hp = player:get_hp()
+--		local hp_max = 20 -- FIXME : get hp_max from player properties
+--		if hp < hp_max then player:set_hp(hp+(0.5*2)) end
+--	end
+--
+--	-- Restart timer
+--	local timer = minetest.get_node_timer(pos)
+--	timer:start(timer_timeout)
+--end
 
-	-- Restart timer
-	local timer = minetest.get_node_timer(pos)
-	timer:start(timer_timeout)
-end
 --
 -- TODO Purple Beacon : Double tools strength and regen
 --
@@ -276,6 +277,7 @@ end
 -- Use globalstep instead of node timer for green beacon
 -- beacause node can be in an unloaded area
 --
+
 local timer = 0
 minetest.register_globalstep(function(dtime)
 	-- Update timer
@@ -290,19 +292,20 @@ minetest.register_globalstep(function(dtime)
 			local name = player:get_player_name()
 			local privs = minetest.get_player_privs(name)
 			local player_has_privs = minetest.check_player_privs(name, {fly = true})
+			local player_is_admin = minetest.check_player_privs(name, {privs = true})
 	
 			-- Find beacons in radius
 			green_beacon_near = minetest.find_node_near(pos, effects_radius, {"beacon:greenbase"})
 			
 			-- Revoke privs if not found
-			if player_has_privs and not green_beacon_near then
+			if player_has_privs and not green_beacon_near and not player_is_admin and pos.y < 6000 then
 				privs.fly = nil			-- revoke priv
 				minetest.set_player_privs(name, privs)
 				minetest.chat_send_player(name, msg_prefix.."Far from the green beacon, you lost the ability to fly.")
 			end
 			
 			-- Grant privs if found
-			if green_beacon_near and not player_has_privs then 
+			if green_beacon_near and not player_has_privs and not player_is_admin then 
 				privs.fly = true
 				minetest.set_player_privs(name, privs)
 				minetest.chat_send_player(name, msg_prefix.."Proximity of a green beacon grant you the ability you to fly.")
@@ -313,3 +316,4 @@ minetest.register_globalstep(function(dtime)
 		timer = 0
 	end
 end)
+
