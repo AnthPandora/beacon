@@ -277,8 +277,9 @@ end
 -- Use globalstep instead of node timer for green beacon
 -- beacause node can be in an unloaded area
 --
-
+local priv_cache = {} -- playername -> {priv=}
 local timer = 0
+
 minetest.register_globalstep(function(dtime)
 	-- Update timer
 	timer = timer + dtime
@@ -290,9 +291,13 @@ minetest.register_globalstep(function(dtime)
 			-- Get player infos
 			local pos = player:getpos()
 			local name = player:get_player_name()
-			local privs = minetest.get_player_privs(name)
-			local player_has_privs = minetest.check_player_privs(name, {fly = true})
-			local player_is_admin = minetest.check_player_privs(name, {privs = true})
+			local privs = priv_cache[name]
+			if not privs then
+				privs = minetest.get_player_privs(name)
+			end
+
+			local player_has_privs = privs.fly
+			local player_is_admin = privs.privs
 	
 			-- Find beacons in radius
 			green_beacon_near = minetest.find_node_near(pos, effects_radius, {"beacon:greenbase"})
@@ -310,6 +315,8 @@ minetest.register_globalstep(function(dtime)
 				minetest.set_player_privs(name, privs)
 				minetest.chat_send_player(name, msg_prefix.."Proximity of a green beacon grant you the ability you to fly.")
 			end
+
+			priv_cache[name] = privs
 		
 		end
 		-- Restart timer
