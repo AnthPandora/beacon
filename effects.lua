@@ -284,6 +284,8 @@ minetest.register_globalstep(function(dtime)
 	-- Update timer
 	timer = timer + dtime
 	if (timer >= timer_timeout) then
+		timer = 0
+
 		-- List all connected player
 		local players = minetest.get_connected_players()
 		for _,player in ipairs(players) do
@@ -319,8 +321,6 @@ minetest.register_globalstep(function(dtime)
 			priv_cache[name] = privs
 		
 		end
-		-- Restart timer
-		timer = 0
 	end
 end)
 
