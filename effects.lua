@@ -291,7 +291,7 @@ minetest.register_globalstep(function(dtime)
 		for _,player in ipairs(players) do
 
 			-- Get player infos
-			local pos = player:getpos()
+			local pos = player:get_pos()
 			local name = player:get_player_name()
 			local privs = priv_cache[name]
 			if not privs then
@@ -306,6 +306,7 @@ minetest.register_globalstep(function(dtime)
 			
 			-- Revoke privs if not found
 			if player_has_privs and not green_beacon_near and not player_is_admin and pos.y < 6000 then
+				privs = minetest.get_player_privs(name)
 				privs.fly = nil			-- revoke priv
 				minetest.set_player_privs(name, privs)
 				minetest.chat_send_player(name, msg_prefix.."Far from the green beacon, you lost the ability to fly.")
@@ -313,6 +314,7 @@ minetest.register_globalstep(function(dtime)
 			
 			-- Grant privs if found
 			if green_beacon_near and not player_has_privs and not player_is_admin then 
+				privs = minetest.get_player_privs(name)
 				privs.fly = true
 				minetest.set_player_privs(name, privs)
 				minetest.chat_send_player(name, msg_prefix.."Proximity of a green beacon grant you the ability you to fly.")
