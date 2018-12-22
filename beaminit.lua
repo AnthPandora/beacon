@@ -4,6 +4,19 @@ local green_beam_climbable = beacon.config.green_beam_climbable
 -- Register per color beam and base nodes
 for _,color in ipairs(colors) do
 	
+	minetest.register_lbm({
+		label = "Beacon without base cleanup for " .. color,
+		name = "beacon:orphan_top_cleanup_" .. color,
+		nodenames = {"beacon:"..color.."base"},
+		run_at_every_load = true,
+		action = function(pos, node)
+			local node_under = minetest.get_node({ x=pos.x, y=pos.y-1, z=pos.z })
+			if node_under.name ~= "beacon:" .. color and node_under.name ~= "ignore" then
+				minetest.set_node(pos, { name="air" })
+			end
+		end
+	})
+
 	local beam_climbable = false
 	if green_beam_climbable and color == 'green' then  beam_climbable = true end
 
