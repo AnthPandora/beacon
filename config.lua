@@ -1,7 +1,7 @@
 -- This file contains configuration variables that will affect beacons beahaviour
 
 -- Int. : Radius of beacons effect.
-beacon.config.effects_radius = 10
+beacon.config.effects_radius = 20
 
 -- Int. : How long before beacons check for new players in the area.
 beacon.config.timer_timeout = 1.0
