@@ -11,7 +11,7 @@ beacon.colors = {'blue','red','green','purple'}
 dofile(minetest.get_modpath("beacon").."/config.lua")
 dofile(minetest.get_modpath("beacon").."/beaminit.lua")
 dofile(minetest.get_modpath("beacon").."/beamgen.lua")
-dofile(minetest.get_modpath("beacon").."/effects.lua")
+--dofile(minetest.get_modpath("beacon").."/effects.lua")
 dofile(minetest.get_modpath("beacon").."/crafts.lua")
 
 --code for "unactivated beacon"
@@ -32,7 +32,8 @@ minetest.register_node("beacon:blue", {
 	drop = "beacon:blue",
 	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.blue,
-	on_destruct = beacon.effects.blue.on_destruct,
+        on_destruct = beacon.on_destruct,
+--	on_destruct = beacon.effects.blue.on_destruct,
 --	after_place_node = beacon.effects.blue.after_place_node,
 })
 
@@ -46,7 +47,7 @@ minetest.register_node("beacon:red", {
 	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.red,
 	on_destruct = beacon.on_destruct,
-	on_timer = beacon.effects.red.on_timer,
+--	on_timer = beacon.effects.red.on_timer,
 })
 
 --code for "Main green source cube"
@@ -59,8 +60,8 @@ minetest.register_node("beacon:green", {
 	-- on_place = beacon.on_place,
 	on_construct = beacon.on_construct.green,
 	on_destruct = beacon.on_destruct,
-	after_place_node = beacon.effects.green.after_place_node,
-	on_timer = beacon.effects.green.on_timer,
+--	after_place_node = beacon.effects.green.after_place_node,
+--	on_timer = beacon.effects.green.on_timer,
 })
 
 --code for "Main purple source cube"
