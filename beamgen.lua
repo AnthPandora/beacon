@@ -47,6 +47,11 @@ for _,color in ipairs(colors) do
 		-- Place base
 		--
 		pos.y = pos.y + 1
+		local beambase_node = minetest.get_node(pos)
+		if not beambase_node.name or beambase_node.name ~= "air" then
+			return
+		end
+
 		minetest.add_node(pos, {name="beacon:"..color.."base"})
 		
 		--
