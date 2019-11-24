@@ -79,13 +79,13 @@ end
 -- on_destruct : Called when beacon node is removed
 beacon.on_destruct = function(pos) --remove the beam above a source when source is removed
 		-- Remove base node
-		pos.y = pos.y + 1        
+		pos.y = pos.y + 1
 	        local node_name_base = minetest.get_node(pos).name
 		if node_name_base == "ignore" then
 			minetest.get_voxel_manip():read_from_map(pos, pos)
 			node_name_base = minetest.get_node(pos).name
 		end
-		if node_name_base:match('^beacon:.*base') then    
+		if node_name_base:match('^beacon:.*base') then
         		minetest.set_node(pos, {name='air'})
         	end
 
